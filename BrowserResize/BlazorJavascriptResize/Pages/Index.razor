@@ -9,6 +9,11 @@ Blazor Javascript testing environment:
 - Resize DOM elements in window, event listeners
 
 <SurveyPrompt Title="How is Blazor working for you?" />
+<SurveyPrompt Title="How is Blazor working for you?" />
+<SurveyPrompt Title="How is Blazor working for you?" />
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+
 
 <p><strong>Inner Height</strong> @InnerHeight</p>
 <p><strong>Inner Width</strong> @InnerWidth</p>
@@ -25,6 +30,7 @@ Blazor Javascript testing environment:
         OnResize += BrowserHasResized;
 
         await JsRuntime.InvokeAsync<object>("browserResize.registerResizeCallback");
+        await JsRuntime.InvokeVoidAsync("browserResize.ApiObserver");
 
         InnerWidth = await GetInnerWidth();
         InnerHeight = await GetInnerHeight();
