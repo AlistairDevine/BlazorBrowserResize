@@ -1,0 +1,70 @@
+﻿@page "/"
+@implements IDisposable
+@inject IJSRuntime JsRuntime
+@using System.Drawing;
+
+<h1>JavaScript Resize</h1>
+
+Blazor Javascript testing environment:
+- Resize DOM elements in window, event listeners
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<p><strong>Inner Height</strong> @InnerHeight</p>
+<p><strong>Inner Width</strong> @InnerWidth</p>
+
+<p><strong>Survey Width: </strong>@SurveySize.Width, <strong>Survey Height: </strong> @SurveySize.Height</p>
+
+@code {
+    Size SurveySize;
+    int InnerWidth;
+    int InnerHeight;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        OnResize += BrowserHasResized;
+
+        await JsRuntime.InvokeAsync<object>("browserResize.registerResizeCallback");
+
+        InnerWidth = await GetInnerWidth();
+        InnerHeight = await GetInnerHeight();
+        SurveySize = await GetSurveySizes();
+    }
+
+    private async Task BrowserHasResized()
+    {
+        InnerWidth = await GetInnerWidth();
+        InnerHeight = await GetInnerHeight();
+        SurveySize = await GetSurveySizes();
+
+        StateHasChanged();
+    }
+
+    public static event Func<Task> OnResize;
+
+    [JSInvokable]
+    public static async Task OnBrowserResize()
+    {
+        await OnResize?.Invoke();
+    }
+
+    private async Task<int> GetInnerWidth()
+    {
+        return await JsRuntime.InvokeAsync<int>("browserResize.getInnerWidth");
+    }
+
+    private async Task<int> GetInnerHeight()
+    {
+        return await JsRuntime.InvokeAsync<int>("browserResize.getInnerHeight");
+    }
+
+    private async Task<Size> GetSurveySizes()
+    {
+        return await JsRuntime.InvokeAsync<Size>("browserResize.getSurveySize");
+    }
+
+    public void Dispose()
+    {
+        OnResize -= BrowserHasResized;
+    }
+}
